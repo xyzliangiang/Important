@@ -3,33 +3,45 @@
 
   <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
 
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <!--   Size and time based rolling policy   -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${application.home:-.}/logs/application.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${application.home:-.}/logs/application-log-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <MaxHistory>30</MaxHistory>
+      <maxFileSize>32MB</maxFileSize>
+      <totalSizeCap>20GB</totalSizeCap>
+    </rollingPolicy>
     <encoder>
-      <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+      <Pattern>%date [%level] from %logger in %thread - %message%n%xException </Pattern>
     </encoder>
   </appender>
 
+  <!-- Appends on the console -->
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+      <pattern>%date %coloredLevel from %logger - %message%n%xException{10} %n</pattern>
     </encoder>
   </appender>
 
-  <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
-    <appender-ref ref="FILE" />
+  <appender name="SECURITY_FILE" class="ch.qos.logback.core.FileAppender">
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+        <marker>SECURITY</marker>
+      </evaluator>
+      <OnMismatch>DENY</OnMismatch>
+      <OnMatch>ACCEPT</OnMatch>
+    </filter>
+    <file>${application.home:-.}/logs/security.log</file>
+    <encoder>
+      <pattern>%date [%level] [%marker] from %logger in %thread - %message%n%xException</pattern>
+    </encoder>
   </appender>
 
-  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+  <root level="INFO">
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="SECURITY_FILE"/>
     <appender-ref ref="STDOUT" />
-  </appender>
-
-  <logger name="play" level="INFO" />
-  <logger name="application" level="DEBUG" />
-
-  <root level="WARN">
-    <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="ASYNCSTDOUT" />
   </root>
 
 </configuration>
