@@ -12,3 +12,8 @@ GET    /test                        controllers.HomeController.test
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+
+->     /commons                      commons.Routes
+->     /converter                    converter.Routes
+->     /server                       server.Routes

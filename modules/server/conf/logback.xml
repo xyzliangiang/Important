@@ -1,0 +1,47 @@
+<!-- https://www.playframework.com/documentation/latest/SettingsLogger -->
+<configuration>
+
+  <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
+
+  <!--   Size and time based rolling policy   -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${application.home:-.}/logs/application.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${application.home:-.}/logs/application-log-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <MaxHistory>30</MaxHistory>
+      <maxFileSize>32MB</maxFileSize>
+      <totalSizeCap>20GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <Pattern>%date [%level] from %logger in %thread - %message%n%xException </Pattern>
+    </encoder>
+  </appender>
+
+  <!-- Appends on the console -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date %coloredLevel from %logger - %message%n%xException{10} %n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="SECURITY_FILE" class="ch.qos.logback.core.FileAppender">
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+        <marker>SECURITY</marker>
+      </evaluator>
+      <OnMismatch>DENY</OnMismatch>
+      <OnMatch>ACCEPT</OnMatch>
+    </filter>
+    <file>${application.home:-.}/logs/security.log</file>
+    <encoder>
+      <pattern>%date [%level] [%marker] from %logger in %thread - %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="SECURITY_FILE"/>
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>
